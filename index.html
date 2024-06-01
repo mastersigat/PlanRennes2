@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Plan interactif Rennes 2</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+   
+    <!-- CHARGEMENT DES FEUILLES DE STYLE CSS -->
+
+      <!-- API MAPLIBRE GL-->
+      <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel='stylesheet' />
+
+      <!--boostrap-->
+      <!--<link href="./css/bootstrap.min.css" rel="stylesheet">  <!-- TEMPLATE -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+      
+      <!-- FEUILLE DE STYLE PERSO -->
+      <link href="./css/startmin.css" rel="stylesheet"> 
+      
+      <!--flèches liste-->
+      <link href="./css/font-awesome.min.css" rel="stylesheet" type="text/css">
+      
+      <!--barre de défilement-->
+      <link href="./css/jquery.mCustomScrollbar.min.css" rel="stylesheet" type="text/css">  <!-- AJOUT DES FLECHES MENU -->
+      
+      <!-- barre de recherche -->
+      <link href="./EasyAutocomplete-1.3.5/easy-autocomplete.min.css" rel="stylesheet">
+      
+      <!-- style de la carte -->
+      <link href="./css/plan.css" rel='stylesheet' />
+      
+      <!--barre menu université Rennes 2-->
+      <script src="https://static.univ-rennes2.fr/barre-portail/jquery.barre-portail-R2.js?v=2.1" type="text/javascript"></script>
+      <link rel="stylesheet" type="text/css" href="https://static.univ-rennes2.fr/barre-portail/jquery.barre-portail-R2.min.css?v=2.1" />
+    
+  <!-- Matomo Partie tracking -->
+  <script type="text/javascript">
+    var _paq = _paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//webstat.univ-rennes2.fr/";
+      _paq.push(['setTrackerUrl', u+'piwik.php']);
+      _paq.push(['setSiteId', '38']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <!-- End Matomo Code -->
+  
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  
+</head>
+
+  <body>
+
+    <!-- API MAPLIBRE GL -->
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+  
+    <!-- JQUERY  -->
+    <script src="./js/jquery.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-1.11.2.js" integrity="sha256-WMJwNbei5YnfOX5dfgVCS5C4waqvc+/0fV7W2uy3DyU=" crossorigin="anonymous"></script> -->
+   
+    <!-- barre de recherche -->
+    <script src= "./EasyAutocomplete-1.3.5/jquery.easy-autocomplete.min.js"></script> <!-- library for search box -->
+    
+    <!-- Bootstrap Core JavaScript -->
+    <script src="./js/bootstrap.min.js"></script>
+     <!-- KO : <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.2/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <!--  les liste ne se déroulent plus / integrity verifie l'intégrité du fichier css, crossorigin gère l'utilisation de cookies de sessions ou pas -->
+   
+    <!-- Menu étendu/réduit -->
+    <script src="./js/metisMenu.min.js"></script> <!-- Metis Menu Plugin JavaScript -->
+    <script src="./js/startmin.js"></script> <!-- Custom Theme JavaScript -->
+
+    
+    
+    <header>
+        <div class="fond-head">
+            <div class="color-head"></div>
+        </div>
+        <div class="search-head">
+            <div class="text-head"><!--contenu (par-dessus l'image)-->
+                <div class="logo">
+                    <!-- Remplacer 'chemin_vers_votre_logo.jpg' par le chemin réel de votre image de logo -->
+                    <img src="./logoR2.png" alt="Logo">
+                </div>
+                <div class="header-main">
+                    <h1>Plan des<br> campus</h1>
+                    <div class="search-bar">
+                        <input id= "search-bar" type="text" placeholder="Rechercher une salle, un service ou des équipements ...">
+                        <!-- <input type="search" id="search-bar" placeholder="Rechercher une salle, un service ou des équipements ..."> -->
+                        <button class="btn btn-primary" id = "searchButton" type="button" ></button>
+                    </div>
+                     <!-- Bouton Imprimer la carte-->
+                    <div id="print" class="btn-header">
+                        <button  id="imprimer" class="btn-imprimer" ></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+      </div>
+
+    </header>
+    
+    <!-- Bloc restant de la page (en dessous du bandeau) carte + menu -->
+    <div id="wrapper" >
+
+      <!-- Navigation -->
+    <nav class="nav nav-stacked " role="navigation" >
+
+        <!-- Burger menu button - 
+        visible uniquement quand la fenetre est réduite 
+        permet de réduire le menu -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        
+      <!-- Sidebar aka Menu de navigation (à gauche) -->
+      <div class="navbar-default sidebar" role="navigation">
+          
+          <!-- partie collapsable par le bouton burger-->
+          <div class="sidebar-nav navbar-collapse">
+              
+              <ul class="nav" id="side-menu">
+                  
+                <!-- Gestion des couches -->
+
+                <!-- Formation -->
+                <li class="nav_main">
+                            
+                    <a href="#">
+                        <p>Formation</p>
+                        <img  src="./css/icons/formation.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -10px;">
+                        
+                        <li>
+                            <a id="Formation UFRL" class="case" href="#">
+                                UFR Langues 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertFUFRL"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                        
+                        <li>
+                            <a id="Formation UFRSH" class="case" href="#">
+                                UFR Sciences Humaines 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertFUFRSH"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                        
+                        <li>
+                            <a id="Formation UFRSS" class="case" href="#">
+                                UFR Sciences Sociales 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertFUFRSS"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+  
+                        <li>
+                            <a id="Formation UFRSTAPS" class="case" href="#">
+                                UFR STAPS 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertFUFRSTAPS"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+  
+                        <li>
+                            <a id="Formation UFRALC" class="case" href="#">
+                                UFR ALC 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertFUFRALC"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+  
+                        <li>
+                            <a id="Autres Formations" class="case" href="#">
+                                Autres structures de Formation 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertAutresFormations"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                        
+                    </ul>
+                </li>
+
+                <!-- Recherche -->
+                <li class="nav_main">
+
+                    <a href="#">
+                        <p>Recherche</p>
+                        <img  src="./css/icons/recherche.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -95px;">
+                    
+                        <li>
+                            <a id="Recherche UFRL" class="case" href="#">
+                                UFR Langues 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertRUFRL"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                    
+                        <li>
+                            <a id="Recherche UFRSH" class="case" href="#">
+                                UFR Sciences Humaines 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertRUFRSH"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas dOverlay, voir plan.js -->
+                        </li>
+                    
+                        <li>
+                            <a id="Recherche UFRSS" class="case" href="#">
+                                UFR Sciences Sociales 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertRUFRSS"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                    
+                        <li>
+                            <a id="Recherche UFRSTAPS" class="case" href="#">
+                                UFR STAPS 
+                                
+                            </a>
+                            <ul class="nav nav-third-level" id="insertRUFRSTAPS"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                    
+                        <li>
+                            <a id="Recherche UFRALC" class="case" href="#">
+                                UFR ALC 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertRUFRALC"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                    </ul>
+                </li>
+
+                <!-- Equipements et services -->
+                <li class="nav_main">
+                    <a href="#">
+                        <p>Equipements et services</p>
+                        <img  src="./css/icons/structures.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -170px;">
+                        <li>
+                            <a id="Services centraux" class="case" href="#">
+                                Services centraux 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertServicescen"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                        
+                        <li>
+                            <a id="Services généraux" class="case" href="#">
+                                Services généraux 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertServicesgen"></ul>
+                        </li>
+                        
+                        <li>
+                            <a id="Services communs" class="case" href="#">
+                                Services communs 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertServicescom"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                        <li>
+                            <a id="wc" class="case" href="#">
+                                Toilettes
+                            </a>
+                            <ul class="nav nav-third-level" id="wc"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                        <li>
+                            <a id="Micro-ondes" class="case" href="#">
+                                Micro-ondes
+                            </a>
+                            <ul class="nav nav-third-level" id="Micro-ondes"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                        <li>
+                            <a id="Copieur" class="case" href="#">
+                                Copieurs
+                            </a>
+                            <ul class="nav nav-third-level" id="Copieur"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                        <li>
+                            <a id="Espace détente" class="case" href="#">
+                                Espace détente
+                            </a>
+                            <ul class="nav nav-third-level" id="Espace détente"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+
+                        <li>
+                            <a id="Equipement sportif" class="case" href="#">
+                                Équipement sportif
+                            </a>
+                            <ul class="nav nav-third-level" id="Equipement sportif"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Amphis et salles spécifiques -->
+                <li class="nav_main">
+                    <a href="#">
+                        <p>Amphis et salles spécifiques</p>
+                        <img  src="./css/icons/amphitheatre.svg" style="height: 40px;"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -250px;">
+                        
+                        <li>
+                            <a id="Amphithéâtre" href="#" class="case">
+                                Amphithéâtres
+                            </a>
+                        </li>
+                        
+                        <li >
+                            <a id="Salle informatique" href="#" class="case">
+                                Salles informatiques
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a id="Salles spécifiques" class="case" href="#">
+                                Salles spécifiques 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertSallesSpecifiques"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                        
+                    </ul>
+                </li>
+
+                <!-- Bibliothèques et Culture -->
+                <li class="nav_main">
+
+                    <a href="#">
+                        <p>Bibliothèques et Culture</p>
+                        <img  src="./css/icons/bibli.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -330px;">
+                    
+                        <li>
+                            <a id="Bibliothèques" href="#" class="case"> 
+                                Bibliothèques
+                            </a>
+                        </li>
+                    
+                        <li>
+                            <a id="Lieux culturels" class="case" href="#">
+                                Lieux culturels 
+                            </a>
+                            <ul class="nav nav-third-level" id="insertLieuCulturel"></ul><!-- Les salles sont ajoutées dynamiquement (JS) en cas d'Overlay, voir plan.js -->
+                        </li>
+                    
+                        <li>
+                            <a id="Oeuvre" href="#" class="case">
+                                Œuvres d'art
+                            </a>
+                        </li>
+                    
+                    </ul>
+                </li>
+
+                <!-- Mobilités et accessibilité -->
+                <li class="nav_main">
+
+                    <a href="#">
+                        <p>Mobilités et accessibilité</p>
+                        <img  src="./css/icons/mobilite.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -410px">
+
+                    <li>
+                        <a href="#" class="case" id="sdslc">
+                            Se déplacer sur le campus  
+                        </a>
+
+                        <ul class="nav nav-third-level">
+
+                            <li>
+                                <a href="#" class="case" id="Ascenseur">Ascenseurs</a>
+                            </li>
+
+                            <li>
+                                <a id="Accès PMR" href="#" class="case">
+                                    Accès personnes à mobilité réduite (PMR)
+                                </a>
+                            </li>
+
+                            <li>
+                                <a id="Cheminements accessibles" href="#" class="case">
+                                    Cheminement personnes à mobilité réduite (PMR)
+                                </a>
+                            </li>
+
+                            <li >
+                                <a id="Entrée batiment" href="#" class="case">Entrée de bâtiment </a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+
+                    <li>
+                        <a href="#" class="case" id="aac">
+                            Accéder au campus  
+                        </a>
+                        
+                        <ul class="nav nav-third-level">
+                        
+                            <li>
+                                <a href="#" id="Bus" class="case">Réseau de bus</a>
+                            </li>
+                        
+                            <li>
+                                <a href="#"  id="Métro" class="case">Métro</a>
+                            </li>
+                        
+                            <li>
+                                <a href="#" id="Parking vélo" class="case">Parkings vélo</a>
+                            </li>
+                        
+                            <li>
+                                <a href="#" id="Station Vélostar" class="case">Stations vélostar</a>
+                            </li>
+                        
+                            <li>
+                                <a href="#" id="Parking" class="case">Parkings </a>
+                            </li>
+
+                            <li>
+                                <a href="#" id="Entrée campus" class="case" >Entrée de campus </a>
+                            </li>
+                            
+                        </ul>
+                    
+                    </li>
+                
+                </ul>
+            
+                </li>
+              
+                <!-- Restauration et logement -->
+                <li class="nav_main">
+
+                    <a href="#">
+                        <p>Restauration et logement</p>
+                        <img  src="./css/icons/restauration.svg"/>
+                    </a>
+                    
+                    <ul class="nav nav-second-level" style="top: -490px;">
+                    
+                        <li>
+                            <a href="#" id="Restaurant Universitaire" class="case">
+                                Restaurants universitaires
+                            </a>
+                        </li>
+                    
+                        <li>
+                            <a href="#" id="Cafétéria" class="case">
+                                Cafétérias/Distributeurs
+                            </a>
+                        </li>
+                    
+                        <!-- <li id="Micro-ondes">
+                            <a href="#" class="case">
+                                Micro-ondes
+                            </a>
+                        </li> -->
+                    
+                        <li>
+                            <a href="#" id="Résidence Universitaire" class="case">
+                                Résidences universitaires
+                            </a>
+                        </li>
+                    
+                    </ul>
+                </li>
+
+                <!-- Santé et prévention -->
+                <li class="nav_main">
+
+                    <a href="#">
+                        <p>Santé et prévention</p>
+                        <img  src="./css/icons/santeR2.svg" style="height: 40px;"/>
+                    </a>
+
+                    <ul class="nav nav-second-level" style="top: -570px;">
+
+                        <li>
+                            <a href="#"  id="Pôle santé et prévention" class="case">
+                                Pôle santé et prévention
+                            </a>
+                        </li>
+
+                        <!-- <li id="Ressources humaines">
+                            <a href="#" class="case">
+                                Ressources humaines
+                            </a>
+                        </li> -->
+
+                        <li>
+                            <a href="#" id="Assistants de prévention" class="case">
+                                Assistants de prévention
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </li>
+                
+                <!-- Vie associative -->
+                <li class="nav_main">
+
+                  <a href="#">
+                      <p>Vie associative</p>
+                      <img  src="./css/icons/vie_assoc.svg"/>
+                  </a>
+
+                  <ul class="nav nav-second-level" style="top: -650px;">
+                  
+                      <li>
+                          <a href="#" id="Associations de filières" class="case">
+                              Associations de filières
+                          </a>
+                      </li>
+                  
+                      <li>
+                          <a href="#" id="Associations de Masters et Doctorats" class="case">
+                              Associations de Masters et Doctorats
+                          </a>
+                      </li>
+                  
+                      <li>
+                          <a href="#" id="Associations culturelles, artistiques et sportives" class="case">
+                              Associations culturelles, artistiques et sportives
+                          </a>
+                      </li>
+                  
+                      <li>
+                          <a href="#" id="Associations de solidarité et de sensibilisation" class="case">
+                              Associations de solidarité et de sensibilisation
+                          </a>
+                      </li>
+                  
+                      <!-- <li id="Associations briochines">
+                          <a href="#" class="case">
+                              Associations briochines  (Campus Mazier)
+                          </a>
+                      </li>
+                  
+                      <li id="Autres">
+                          <a href="#" class="case">
+                              Autres
+                          </a>
+                      </li> -->
+                  
+                  </ul>
+                </li>
+
+                <button id="clearSubMenuBtn">Réinitialiser les filtres</button>
+
+            
+                  
+       
+                  
+              <!-- FIN Gestion des couches -->
+          </ul>
+      </div>
+  </div>
+  <!-- FIN Sidebar -->
+</nav>
+<!-- FIN Navigation -->
+     
+      <div id="page-wrapper" style="z-index: 0;">
+
+        <div class="container-fluid">
+          <div id="map" >
+
+            <!-- Boutons 2D/3D-->
+            <div id="DDD" class="btn-group">
+                          <!-- Les boutons sont créés dans plan.js -->
+            </div>
+
+            <!-- Onglets géographiques-->
+            <div id="campus" class="btn-group">
+              <button  class="btn btn-primary" id="Villejean">Villejean</button>
+              <button  class="btn btn-primary" id="LaHarpe">La Harpe</button>
+              <button  class="btn btn-primary" id="Mazier">Mazier</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+    </div>
+ 
+  <!--   <footer class="footer" role="contentinfo">
+        <div class="region region-footer">
+          <div class="container" id="footer-up">
+            <section id="block-blocadresserennes2" class="block block-block-content block-block-content673d69c4-67cc-4069-b577-64b229e78c26 clearfix col-md-4 col-xs-12">
+              <div class="field field--name-body field--type-text-with-summary field--label-hidden field--item"><div class="infos-contact">
+                  <div class="logo"><img alt="logo Rennes 2" src="css/./css/icons/logo.svg"></div>
+                  <div class="coordonnees"><span class="nom">Université Rennes 2 </span><span class="adresse">Place du recteur Henri Le Moal</span><span class="adresse">CS 24307 - 35043 Rennes cedex</span><span class="telephone">Tél.&nbsp; : +33 (0)2 99 14 10 00 </span></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="block-accesdirects" class="block block-menu-block block-menu-blockacces-directs clearfix col-md-4 col-xs-12">
+
+              <h2 class="block-title">Accès directs</h2>
+              <ul class="menu menu--acces-directs nav">
+                <li>
+                  <a href="formation/inscriptions-candidatures" >Inscriptions / Candidatures</a>
+                </li>
+                <li>
+                  <a href="formation/calendrier-universitaire">Calendrier universitaire</a>
+                </li>
+                <li>
+                  <a href="universite/recrutement" >Recrutement</a>
+                </li>
+                <li>
+                  <a href="https://services.univ-rennes2.fr/annuaire">Annuaire</a>
+                </li>
+              </ul>
+            </section>
+            <section id="block-suivez-nous" class="block-social-media-links block block-social-media-links-block clearfix col-md-4 col-xs-12">
+
+              <h2 class="block-title">Suivez-nous</h2>
+              <ul class="social-media-links--platforms platforms inline horizontal">
+                <li class="col-md-3">
+                  <a href="https://www.twitter.com/UnivRennes_2" aria-label="Suivez-nous sur Twitter" title="Suivez-nous sur Twitter" class="ext" target="_blank" rel="noopener noreferrer nofollow">
+                    <span class="fa fa-twitter fa-2x"></span>
+                    <span class="ext" aria-label="(link is external)"></span></a>
+
+                </li>
+                <li class="col-md-3">
+                  <a href="https://www.linkedin.com/edu/universit%C3%A9-rennes-2-12557" aria-label="Suivez-nous sur Linkedin" title="Suivez-nous sur Linkedin" class="ext" target="_blank" rel="noopener noreferrer nofollow">
+                    <span class="fa fa-linkedin fa-2x"></span>
+                    <span class="ext" aria-label="(link is external)"></span></a>
+
+                </li>
+                <li class="col-md-3">
+                  <a href="https://www.facebook.com/UnivRennes2" aria-label="Suivez-nous sur Facebook" title="Suivez-nous sur Facebook" class="ext" target="_blank" rel="noopener noreferrer nofollow">
+                    <span class="fa fa-facebook fa-2x"></span>
+                    <span class="ext" aria-label="(link is external)"></span></a>
+
+                </li>
+                <li class="col-md-3">
+                  <a href="https://www.instagram.com/univrennes2/" aria-label="Suivez-nous sur Instagram" title="Suivez-nous sur Instagram" class="ext" target="_blank" rel="noopener noreferrer nofollow">
+                    <span class="fa fa-instagram fa-2x"></span>
+                    <span class="ext" aria-label="(link is external)"></span></a>
+
+                </li>
+              </ul>
+            </section>
+          </div>
+
+          <nav role="navigation" aria-labelledby="block-bootstrap-rennes2-less-footer-menu" id="block-bootstrap-rennes2-less-footer">
+
+            <ul class="menu menu--footer nav container">
+
+              <li class="col-xs-12 col-md-3">
+                <a href="https://www.univ-rennes2.fr/contact" >Contact</a>
+              </li>
+
+              <li class="col-xs-12 col-md-3">
+                <a href="https://www.univ-rennes2.fr/sitemap" >Plan du site</a>
+              </li>
+
+              <li class="col-xs-12 col-md-3">
+                <a href="https://www.univ-rennes2.fr/credits-mentions-legales" >Crédits et mentions légales </a>
+              </li>
+
+              <li class="col-xs-12 col-md-3">
+                <a href="https://www.univ-rennes2.fr/cil" >Informatique et libertés</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+      </footer>-->
+
+    <!-- SCRIPTS JS-->
+    <script src="./js/token.js"></script> <!--les tokens du fond de plan-->
+    <script id="plan" data-version="14032024" src="/js/plan.js?v=14032024"></script>
+  </body>
+</html>
